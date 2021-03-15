@@ -7,7 +7,7 @@ version: 2
 defaults: &defaults
   working_directory: ~/repo
   docker:
-    - image: circleci/node:7
+    - image: circleci/node:8.9.1
 
 jobs:
   checkout:
@@ -46,12 +46,18 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/repo
-      - run:
-          name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
-      - run:
-          name: Publish package
-          command: npm publish
+      #- run:
+      #    name: Authenticate with registry
+      #    command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      #- run:
+      #    name: Publish package
+      #    command: npm publish
+      - run: 
+          name: Publish to NPM
+          command: | 
+            npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+            npm publish
+
             
 workflows:
   version: 2
