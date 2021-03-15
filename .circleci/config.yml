@@ -40,7 +40,6 @@ jobs:
           at: ~/repo
       - run:
           name: Run tests
-          command: npm test
           command: npm whoami
   deploy:
     <<: *defaults
