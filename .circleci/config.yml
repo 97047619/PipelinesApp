@@ -1,6 +1,6 @@
 # Javascript Node CircleCI 2.0 configuration file
 #
-# Check {{ '/2.0/language-javascript/' | docs_url }} for more details
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2
 
@@ -10,21 +10,17 @@ defaults: &defaults
     - image: circleci/node:8.9.1
 
 jobs:
-  test:
-    <<: *defaults
+  checkout:
+    <<: *defaults  
     steps:
       - checkout
 
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
-	  # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: npm install
-      - run:
-          name: Run tests
-          command: npm test
+      - run: yarn install
 
       - save_cache:
           paths:
@@ -34,23 +30,40 @@ jobs:
       - persist_to_workspace:
           root: ~/repo
           paths: .
+  test:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Run tests
+          command: npm test
   deploy:
     <<: *defaults
     steps:
       - attach_workspace:
           at: ~/repo
       - run:
+          name: Set registry URL
+          command: npm set registry https://packagecloud.io/armando/node-test-package/npm/
+      - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+          command: echo "//packagecloud.io/armando/node-test-package/npm/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
           name: Publish package
           command: npm publish
-
+            
 workflows:
   version: 2
   test-deploy:
     jobs:
+      - checkout:
+          filters:
+            tags:
+              only: /^v.*/
       - test:
+          requires:
+            - checkout
           filters:
             tags:
               only: /^v.*/
