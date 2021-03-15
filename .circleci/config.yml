@@ -20,7 +20,10 @@ jobs:
           - v1-dependencies-{{ checksum "package.json" }}
           - v1-dependencies-
 
-      - run: yarn install
+      - run: npm install
+      #- run:
+      #    name: Run tests
+      #    command: npm test
 
       - save_cache:
           paths:
@@ -44,10 +47,11 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - run:
-          name: Set registry URL
-          command: npm set registry https://packagecloud.io/armando/node-test-package/npm/
-      - run:
           name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+          command: npm set registry https://packagecloud.io/armando/node-test-package/npm/
+      #- run:
+      #    name: Authenticate with registry
           command: echo "//packagecloud.io/armando/node-test-package/npm/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
           name: Publish package
