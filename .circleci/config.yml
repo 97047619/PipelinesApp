@@ -40,9 +40,13 @@ jobs:
           at: ~/repo
       - run:
           name: Run tests
-          command: npm test
+          command: |
+            mkdir -p ~/test-results/junit
+            npm test --ci --reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT: ~/test-results/junit/results.xml
       - store_test_results:
-          path: test-results
+          path: ~/test-results
 
   deploy:
     <<: *defaults
